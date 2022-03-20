@@ -81,24 +81,26 @@ const getCountByDuplicateValues = (array) => {
   // },
   const formatedArray = [];
   array.map((item) => {
-    let sum = 0;
+    for (let sum = 0; sum < item["molhamento-foliar"]; sum++) {
+      const shouldAddDay =
+        new Date(item.datetime).getHours() + sum > 24 ? true : false;
 
-    for (let i = item["molhamento-foliar"]; i > 0; i--) {
-      const hour = new Date(item.datetime).getHours() + sum;
-      const date =
-        hour <= 24
-          ? new Date(item.datetime).toLocaleDateString({
-              day: "numeric",
-            })
-          : new Date(item.datetime + 60 * 60 * 24 * 1000).toLocaleDateString({
-              day: "numeric",
-            });
+      const hour = shouldAddDay
+        ? new Date(item.datetime).getHours() + sum - 24
+        : new Date(item.datetime).getHours() + sum;
+      const date = shouldAddDay
+        ? new Date(item.datetime + 60 * 60 * 24 * 1000).toLocaleDateString({
+            day: "numeric",
+          })
+        : new Date(item.datetime).toLocaleDateString({
+            day: "numeric",
+          });
 
       formatedArray.push({
         date,
         hour,
+        shouldAddDay,
       });
-      sum++;
     }
   });
   console.log("formatedArray", formatedArray);
