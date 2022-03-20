@@ -35,48 +35,69 @@ import {
 
 const rectColor = ["#eeeeee", "#d6e685", "#8cc665", "#44a340", "#1e6823"];
 
-const CalendarHeatmap = ({
-  values,
-  gutterSize,
-  horizontal,
-  numDays,
-  endDate,
-  startDate,
-  titleForValue,
-  tooltipDataAttrs,
-  onPress,
-  showOutOfRangeDays,
-  monthLabelsColor,
-  showMonthLabels,
-  monthLabelsStyle,
-  monthLabelForIndex,
-  colorArray,
-  ...props
-}) => {
-  getValueCache = (values) => {
-    const countedArray = getCountByDuplicateValues(values);
-    return _.reduce(
-      values,
-      (memo, value) => {
-        const date = convertToDate(value.date);
-        const index = Math.floor(
-          (date - getStartDateWithEmptyDays(numDays, endDate)) /
-            MILLISECONDS_IN_ONE_DAY
-        );
-        memo[index] = {
-          value: value,
-        };
-        if (memo[index].value.count) {
-          memo[index].countedArray = memo[index].value;
-        } else {
-          const count = _.find(countedArray, { key: memo[index].value.date });
-          memo[index].countedArray = count;
-        }
+const CalendarHeatmap = (props) => {
+  const {
+    values,
+    gutterSize,
+    horizontal,
+    numDays,
+    endDate,
+    startDate,
+    titleForValue,
+    tooltipDataAttrs,
+    onPress,
+    showOutOfRangeDays,
+    monthLabelsColor,
+    showMonthLabels,
+    monthLabelsStyle,
+    monthLabelForIndex,
+    colorArray,
+  } = props;
 
-        return memo;
-      },
-      {}
-    );
+  // getValueCache = values => {
+  //   const countedArray = getCountByDuplicateValues(values);
+  //   return _.reduce(
+  //     values,
+  //     (memo, value) => {
+  //       const date = convertToDate(value.date);
+  //       const index = Math.floor(
+  //         (date - getStartDateWithEmptyDays(numDays, endDate)) /
+  //           MILLISECONDS_IN_ONE_DAY
+  //       );
+  //       memo[index] = {
+  //         value: value
+  //       };
+  //       if (memo[index].value.count) {
+  //         memo[index].countedArray = memo[index].value;
+  //       } else {
+  //         const count = _.find(countedArray, { key: memo[index].value.date });
+  //         memo[index].countedArray = count;
+  //       }
+
+  //       return memo;
+  //     },
+  //     {}
+  //   );
+  // };
+
+  getValueCache = (values) => {
+    const valuesFormatted = {};
+    // const getRangeDate = getDateCount(startDate, endDate);
+    values.map((value) => {
+      let currentDate = new Date(value.datetime);
+      let currentHour = currentDate.getHours();
+      console.log("current", currentHour);
+      let index = (getDateCount(startDate, currentDate) + 1) * 24 + currentHour;
+      console.log(index);
+      valuesFormatted[index] = { content: true, start: true };
+
+      _.range(value["molhamento-foliar"]).map((itter) => {
+        const updatedIndex = index + itter + 1;
+        valuesFormatted[updatedIndex] = { content: true, start: true };
+      });
+    });
+
+    return valuesFormatted;
   };
 
   useEffect(() => {
@@ -92,9 +113,9 @@ const CalendarHeatmap = ({
   };
 
   renderSquare = (dayIndex, index) => {
-    const indexOutOfRange =
-      index < getNumEmptyDaysAtStart(numDays, endDate) ||
-      index >= getNumEmptyDaysAtStart(numDays, endDate) + numDays;
+    // const indexOutOfRange =
+    //   index < getNumEmptyDaysAtStart(numDays, endDate) ||
+    //   index >= getNumEmptyDaysAtStart(numDays, endDate) + numDays;
     // if (indexOutOfRange && !showOutOfRangeDays) {
     //   return null;
     // }
@@ -243,7 +264,7 @@ CalendarHeatmap.propTypes = {
   values: PropTypes.arrayOf(
     // array of objects with date and arbitrary metadata
     PropTypes.shape({
-      date: PropTypes.oneOfType([
+      datetime: PropTypes.oneOfType([
         PropTypes.string,
         PropTypes.number,
         PropTypes.instanceOf(Date),
