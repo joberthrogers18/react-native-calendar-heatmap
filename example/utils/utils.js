@@ -99,7 +99,6 @@ const getCountByDuplicateValues = (array) => {
       formatedArray.push({
         date,
         hour,
-        shouldAddDay,
       });
     }
   });
