@@ -79,17 +79,32 @@ const getCountByDuplicateValues = (array) => {
   //   datetime: 1647475517,
   //   "molhamento-foliar": 5,
   // },
-  const formatedArray = array.map((item) => {
-    for (let i = item["molhamento-folhar"]; i > 0; i--) {
-      return {
-        date: new Date(item.datetime),
-      };
+  const formatedArray = [];
+  array.map((item) => {
+    let sum = 0;
+
+    for (let i = item["molhamento-foliar"]; i > 0; i--) {
+      const hour = new Date(item.datetime).getHours() + sum;
+      const date =
+        hour <= 24
+          ? new Date(item.datetime).toLocaleDateString({
+              day: "numeric",
+            })
+          : new Date(item.datetime + 60 * 60 * 24 * 1000).toLocaleDateString({
+              day: "numeric",
+            });
+
+      formatedArray.push({
+        date,
+        hour,
+      });
+      sum++;
     }
   });
   console.log("formatedArray", formatedArray);
   let hashMap = {};
 
-  for (let item of array) {
+  for (let item of formatedArray) {
     //if that date exists
     if (item.date in hashMap) {
       //up the prev count
