@@ -4,7 +4,7 @@ import {
   MONTH_LABELS,
   DAYS_IN_WEEK,
   MONTH_LABEL_GUTTER_SIZE,
-  MILLISECONDS_IN_ONE_DAY
+  MILLISECONDS_IN_ONE_DAY,
 } from "./constants";
 
 function getTransformForMonthLabels(horizontal, gutterSize) {
@@ -27,7 +27,8 @@ function getWeekWidth(gutterSize) {
 function getWidth(startDate, endDate, gutterSize) {
   return (
     getDateCount(startDate, endDate) * getSquareSizeWithGutter(gutterSize) -
-    gutterSize + 30
+    gutterSize +
+    30
   );
 }
 
@@ -73,10 +74,22 @@ function getTooltipDataAttrsForIndex(index, valueCache, tooltipDataAttrs) {
   );
 }
 
-function getCountByDuplicateValues(array) {
+const getCountByDuplicateValues = (array) => {
+  // {
+  //   datetime: 1647475517,
+  //   "molhamento-foliar": 5,
+  // },
+  const formatedArray = array.map((item) => {
+    for (let i = item["molhamento-folhar"]; i > 0; i--) {
+      return {
+        date: new Date(item.datetime),
+      };
+    }
+  });
+  console.log("formatedArray", formatedArray);
   let hashMap = {};
 
-  for (var item of array) {
+  for (let item of array) {
     //if that date exists
     if (item.date in hashMap) {
       //up the prev count
@@ -88,14 +101,14 @@ function getCountByDuplicateValues(array) {
 
   //now we will iterate through those keys of the Map and format it for Array 2
   let outputArray = [];
-  Object.keys(hashMap).forEach(key => {
+  Object.keys(hashMap).forEach((key) => {
     outputArray.push({
       key,
-      count: hashMap[key]
+      count: hashMap[key],
     });
   });
   return outputArray;
-}
+};
 
 function findColorLevel(count, rectColor) {
   if (count === 0) return rectColor[0];
@@ -128,9 +141,17 @@ function getSquareCoordinates(dayIndex, horizontal, gutterSize) {
   return [dayIndex * getSquareSizeWithGutter(gutterSize), 0];
 }
 
-function getTransformForWeek(weekIndex, horizontal, gutterSize, showMonthLabels) {
+function getTransformForWeek(
+  weekIndex,
+  horizontal,
+  gutterSize,
+  showMonthLabels
+) {
   if (horizontal) {
-    return [weekIndex * getSquareSizeWithGutter(gutterSize), getMonthLabelSize(showMonthLabels, horizontal)];
+    return [
+      weekIndex * getSquareSizeWithGutter(gutterSize),
+      getMonthLabelSize(showMonthLabels, horizontal),
+    ];
   }
   if (horizontal && !showMonthLabels) {
     return [weekIndex * getSquareSizeWithGutter(gutterSize), 0];
@@ -151,21 +172,14 @@ function getSquareSizeWithGutter(gutterSize) {
   return SQUARE_SIZE + gutterSize;
 }
 
-function getMonthLabelCoordinates(
-  weekIndex,
-  horizontal,
-  gutterSize,
-) {
+function getMonthLabelCoordinates(weekIndex, horizontal, gutterSize) {
   if (horizontal) {
-    return [
-      weekIndex * getSquareSizeWithGutter(gutterSize),
-      0
-    ];
+    return [weekIndex * getSquareSizeWithGutter(gutterSize), 0];
   }
   const verticalOffset = -2;
   return [
     0,
-    (weekIndex + 1) * getSquareSizeWithGutter(gutterSize) + verticalOffset
+    (weekIndex + 1) * getSquareSizeWithGutter(gutterSize) + verticalOffset,
   ];
 }
 

@@ -8,12 +8,12 @@ import {
   MONTH_LABELS,
   DAYS_IN_WEEK,
   MONTH_LABEL_GUTTER_SIZE,
-  MILLISECONDS_IN_ONE_DAY
+  MILLISECONDS_IN_ONE_DAY,
 } from "./utils/constants";
 import {
   shiftDate,
   getBeginningTimeForDate,
-  convertToDate
+  convertToDate,
 } from "./utils/helpers";
 import {
   getWeekCount,
@@ -30,31 +30,30 @@ import {
   getHeight,
   getWidth,
   getDateCount,
-  getLabelDay
+  getLabelDay,
 } from "./utils/utils";
 
 const rectColor = ["#eeeeee", "#d6e685", "#8cc665", "#44a340", "#1e6823"];
 
-const CalendarHeatmap = props => {
-  const {
-    values,
-    gutterSize,
-    horizontal,
-    numDays,
-    endDate,
-    startDate,
-    titleForValue,
-    tooltipDataAttrs,
-    onPress,
-    showOutOfRangeDays,
-    monthLabelsColor,
-    showMonthLabels,
-    monthLabelsStyle,
-    monthLabelForIndex,
-    colorArray,
-  } = props;
-
-  getValueCache = values => {
+const CalendarHeatmap = ({
+  values,
+  gutterSize,
+  horizontal,
+  numDays,
+  endDate,
+  startDate,
+  titleForValue,
+  tooltipDataAttrs,
+  onPress,
+  showOutOfRangeDays,
+  monthLabelsColor,
+  showMonthLabels,
+  monthLabelsStyle,
+  monthLabelForIndex,
+  colorArray,
+  ...props
+}) => {
+  getValueCache = (values) => {
     const countedArray = getCountByDuplicateValues(values);
     return _.reduce(
       values,
@@ -65,7 +64,7 @@ const CalendarHeatmap = props => {
             MILLISECONDS_IN_ONE_DAY
         );
         memo[index] = {
-          value: value
+          value: value,
         };
         if (memo[index].value.count) {
           memo[index].countedArray = memo[index].value;
@@ -86,7 +85,7 @@ const CalendarHeatmap = props => {
 
   const [valueCache, setValueCache] = useState(getValueCache(values));
 
-  handleClick = value => {
+  handleClick = (value) => {
     if (onPress) {
       onPress(value);
     }
@@ -116,11 +115,16 @@ const CalendarHeatmap = props => {
     );
   };
 
-  renderWeek = weekIndex => {
-    const [x, y] = getTransformForWeek(weekIndex, horizontal, gutterSize, showMonthLabels);
+  renderWeek = (weekIndex) => {
+    const [x, y] = getTransformForWeek(
+      weekIndex,
+      horizontal,
+      gutterSize,
+      showMonthLabels
+    );
     return (
       <G key={weekIndex} x={x} y={y}>
-        {_.range(DAYS_IN_WEEK).map(dayIndex =>
+        {_.range(DAYS_IN_WEEK).map((dayIndex) =>
           renderSquare(dayIndex, weekIndex * DAYS_IN_WEEK + dayIndex)
         )}
       </G>
@@ -128,7 +132,7 @@ const CalendarHeatmap = props => {
   };
 
   renderAllWeeks = () => {
-    return _.range(getDateCount(startDate, endDate)).map(weekIndex =>
+    return _.range(getDateCount(startDate, endDate)).map((weekIndex) =>
       renderWeek(weekIndex)
     );
   };
@@ -170,12 +174,12 @@ const CalendarHeatmap = props => {
     if (!showMonthLabels) {
       return null;
     }
-    const dayRange = _.range(getDateCount(startDate, endDate)); 
-    return dayRange.map(weekIndex => {
+    const dayRange = _.range(getDateCount(startDate, endDate));
+    return dayRange.map((weekIndex) => {
       const [x, y] = getMonthLabelCoordinates(
         weekIndex,
         horizontal,
-        gutterSize,
+        gutterSize
       );
       // return endOfWeek.getDate() >= 1 && endOfWeek.getDate() <= DAYS_IN_WEEK ? (
       return weekIndex % 5 === 0 ? (
@@ -199,13 +203,9 @@ const CalendarHeatmap = props => {
     if (!showMonthLabels) {
       return null;
     }
-    const hourRange = _.range(DAYS_IN_WEEK); 
-    return hourRange.map(hourIndex => {
-      const [x, y] = getMonthLabelCoordinates(
-        hourIndex,
-        false,
-        gutterSize,
-      );
+    const hourRange = _.range(DAYS_IN_WEEK);
+    return hourRange.map((hourIndex) => {
+      const [x, y] = getMonthLabelCoordinates(hourIndex, false, gutterSize);
       // return endOfWeek.getDate() >= 1 && endOfWeek.getDate() <= DAYS_IN_WEEK ? (
       return hourIndex % 4 === 0 ? (
         <Text
@@ -229,7 +229,7 @@ const CalendarHeatmap = props => {
       <Svg
         height={getHeight(gutterSize + 2, showMonthLabels, horizontal)}
         width={getWidth(startDate, endDate, gutterSize)}
-        style={{overflow:"scroll"}}
+        style={{ overflow: "scroll" }}
       >
         <G>{renderDaysLabels()}</G>
         <G>{renderHourLabels()}</G>
@@ -246,15 +246,15 @@ CalendarHeatmap.propTypes = {
       date: PropTypes.oneOfType([
         PropTypes.string,
         PropTypes.number,
-        PropTypes.instanceOf(Date)
-      ]).isRequired
+        PropTypes.instanceOf(Date),
+      ]).isRequired,
     }).isRequired
   ).isRequired,
   numDays: PropTypes.number, // number of days back from endDate to show
   endDate: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.number,
-    PropTypes.instanceOf(Date)
+    PropTypes.instanceOf(Date),
   ]), // end of date range
   gutterSize: PropTypes.number, // size of space between squares
   horizontal: PropTypes.bool, // whether to orient horizontally or vertically
@@ -265,7 +265,7 @@ CalendarHeatmap.propTypes = {
   titleForValue: PropTypes.func, // function which returns title text for value
   classForValue: PropTypes.func, // function which returns html class for value
   onPress: PropTypes.func, // callback function when a square is clicked
-  colorArray: PropTypes.array
+  colorArray: PropTypes.array,
 };
 
 CalendarHeatmap.defaultProps = {
@@ -274,11 +274,11 @@ CalendarHeatmap.defaultProps = {
   gutterSize: 2,
   horizontal: true,
   showMonthLabels: true,
-  monthLabelsColor: 'black',
+  monthLabelsColor: "black",
   showOutOfRangeDays: false,
   colorArray: rectColor,
-  classForValue: value => (value ? "black" : "#8cc665"),
-  onPress: () => console.log("change onPress prop")
+  classForValue: (value) => (value ? "black" : "#8cc665"),
+  onPress: () => console.log("change onPress prop"),
 };
 
 export default CalendarHeatmap;
